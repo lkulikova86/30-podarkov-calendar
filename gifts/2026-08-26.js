@@ -8,7 +8,55 @@
     return previousIsLocked(item);
   };
 
-  g.image = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQDAwQDAwQEBAQFBQQFBwsHBwYGBw4KCggLEA4RERAOEA8SFBoWEhMYEw8QFh8XGBsbHR0dERYgIh8cIhocHRz/2wBDAQUFBQcGBw0HBw0cEhASHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBz/wAARCAElANwDASIAAhEBAxEB/8QAHQAAAgIDAQEBAAAAAAAAAAAABAUDBgACBwEICf/EAD4QAAICAQMCBQIDBgQFBQADAAECAwQRBRIhADEGEyJBURRhMnGBBxUjQpGhscHh8CQzUmLRCBY0coIXJfH/xAAaAQACAwEBAAAAAAAAAAAAAAAAAQIDBAUG/8QAMxEAAQQBAwEGBQQCAgMAAAAAAQACAxEEEiExQQUTUWFxkRQiMoGhI7HB0ULhFfEGM/D/2gAMAwEAAhEDEQA/ALH4f0qCxp1027MC05S81RjLhmyAPSqjLMMYIPI9sd+tNSggtLDDeuzzXiWKb5F9KA55C+pSEH4T7kfl0RqymnpUNavOtOnW4t/wgj+YNzKVBGcltp4zw3fpbeqWK0cfmXCaqIEEqRBZI5M/iJPdlY8gZPqHvjqm1rrdMrldx9Rqs1i1vhSbykksHKyAbd7oMjBYKMfoB17F5WdMpTxOtdR9VKy4RZckM5Utkj1kgDjvgdz0tiCrHFcfUb0jzOsc0BXc0EeQNxPOAwQj7AHPPWmuXGr2Ypzb36jTswRozKHhWMDceSOSqlTnsCT9ulSLTGGWtpXiCsRdsCtJLtiqk7Uljbb5hOD6SS23gDAH3x1DX02FdYttQivTUq8v052qj+Qf+kbgcgZQAg8MnfLdSNXuRa9JUr2q1v6ivuiNiSNnjAZpHK+6bCPj8LN79aR2xTlkptXiuM0axRt/DxHKedxBI5/CNxyPz4wJccqavqMHiLWnkjKwwyKYohLW82YlgqhiF5Db1fgEZz206jzO...";
+  let photoUrl = null;
 
+  function injectPhoto() {
+    if (!photoUrl) return;
+    g.image = photoUrl;
+    const modalDate = document.querySelector('.modal-date');
+    if (modalDate && modalDate.textContent.includes('26 AUG')) {
+      const gift = document.querySelector('.gift');
+      if (gift) {
+        let img = gift.querySelector('.gift-photo');
+        if (!img) {
+          img = document.createElement('img');
+          img.className = 'gift-photo';
+          img.alt = '';
+          gift.appendChild(img);
+        }
+        img.src = photoUrl;
+      }
+    }
+  }
+
+  async function loadPhoto() {
+    if (photoUrl) return photoUrl;
+    const parts = await Promise.all([
+      fetch('/gifts/gift26_part1.txt?v=4', {cache:'no-store'}).then(r => r.text()),
+      fetch('/gifts/gift26_part2.txt?v=4', {cache:'no-store'}).then(r => r.text()),
+      fetch('/gifts/gift26_part3.txt?v=4', {cache:'no-store'}).then(r => r.text())
+    ]);
+    const b64 = parts.join('').replace(/\s+/g, '');
+    const binary = atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    photoUrl = URL.createObjectURL(new Blob([bytes], {type:'image/jpeg'}));
+    injectPhoto();
+    return photoUrl;
+  }
+
+  loadPhoto().catch(console.error);
   render();
+
+  const originalOpenGift = window.openGift;
+  window.openGift = function(index) {
+    const result = originalOpenGift.apply(this, arguments);
+    if (index === 2) {
+      setTimeout(() => {
+        if (photoUrl) injectPhoto();
+        else loadPhoto().then(injectPhoto).catch(console.error);
+      }, 0);
+    }
+    return result;
+  };
 })();
