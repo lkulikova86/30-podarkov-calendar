@@ -1,4 +1,4 @@
-name: Bootstrap calendar site
+name: Fix 25 August gift
 
 on:
   push:
@@ -11,49 +11,45 @@ permissions:
   contents: write
 
 jobs:
-  bootstrap:
+  fix-gift:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download current live site
+      - name: Put 25 August photo directly into the site
         shell: bash
         run: |
           set -euo pipefail
-          curl -fsSL 'https://30-podarkov-calendar.netlify.app/' -o index.html
           python - <<'PY'
           from pathlib import Path
-          import re, urllib.request, datetime
-          p = Path('index.html')
-          html = p.read_text(encoding='utf-8')
-          names = sorted(set(re.findall(r'["\']((?:new_anim|party_anim)_[^"\']+\.(?:webp|png|jpg|jpeg))["\']', html)))
-          base = 'https://30-podarkov-calendar.netlify.app/'
-          for name in names:
-              try:
-                  urllib.request.urlretrieve(base + name, name)
-                  print('downloaded', name)
-              except Exception as e:
-                  print('warning:', name, e)
-          if 'gift-overrides-start' not in html:
-              start = datetime.date(2026, 8, 24)
-              tags = ['<!-- gift-overrides-start -->']
-              for i in range(30):
-                  d = start + datetime.timedelta(days=i)
-                  tags.append(f'<script src="gifts/{d.isoformat()}.js"></script>')
-              tags.append('<!-- gift-overrides-end -->')
-              html = html.replace('</body>', '\n'.join(tags) + '\n</body>')
-          p.write_text(html, encoding='utf-8')
+          import re, base64
+
+          js_path = Path('gifts/2026-08-25.js')
+          index_path = Path('index.html')
+          js = js_path.read_text(encoding='utf-8')
+          html = index_path.read_text(encoding='utf-8')
+
+          m = re.search(r'g\.image\s*=\s*"data:image/jpeg;base64,([A-Za-z0-9+/=]+)"', js)
+          if not m:
+              raise SystemExit('Could not find the 25 August JPEG in gift override')
+
+          photo_path = Path('gifts/2026-08-25.jpg')
+          photo_path.write_bytes(base64.b64decode(m.group(1)))
+
+          pattern = r'\{date:"2026-08-25", day:"25", month:"AUG", gift:"Подарок №2", note:"[^"]*", from:"[^"]*"(?:, image:[^}]*)?\}'
+          replacement = '{date:"2026-08-25", day:"25", month:"AUG", gift:"Подарок №2", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Любимая жена", image:"gifts/2026-08-25.jpg"}'
+          html2, count = re.subn(pattern, replacement, html, count=1)
+          if count != 1:
+              raise SystemExit(f'Could not patch 25 August gift object, matches={count}')
+          index_path.write_text(html2, encoding='utf-8')
+          print('Patched 25 August gift and wrote', photo_path)
           PY
-          mkdir -p gifts
-      - name: Commit site files
+      - name: Commit fix
         shell: bash
         run: |
           set -e
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html gifts/
-          for f in new_anim_* party_anim_*; do
-            [ -e "$f" ] && git add "$f" || true
-          done
-          git commit -m 'Import current calendar site' || exit 0
+          git add index.html gifts/2026-08-25.jpg
+          git commit -m 'Show 25 August gift photo' || exit 0
           git push
