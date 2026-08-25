@@ -2,15 +2,13 @@
   const g = gifts.find(x => x.date === "2026-08-26");
   if (!g) return;
 
-  // Keep day 3 unlocked now.
   const previousIsLocked = isLocked;
   isLocked = function(item) {
     if (item === g) return false;
     return previousIsLocked(item);
   };
 
-  // Use a real image file from the repository; no async base64 assembly.
-  g.image = "/gifts/gift_2026-08-26.webp?v=1";
+  g.image = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQDAwQDAwQEBAQFBQQFBwsHBwYGBw4KCggLEA4RERAOEA8SFBoWEhMYEw8QFh8XGBsbHR0dERYgIh8cIhocHRz/2wBDAQUFBQcGBw0HBw0cEhASHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBz/wAARCAElANwDASIAAhEBAxEB/8QAHQAAAgIDAQEBAAAAAAAAAAAABAUDBgACBwEICf/EAD4QAAICAQMCBQIDBgQFBQADAAECAwQRBRIhADEGEyJBURRhMnGBBxUjQpGhscHh8CQzUmLRCBY0coIXJfH/xAAaAQACAwEBAAAAAAAAAAAAAAAAAQIDBAUG/8QAMxEAAQQBAwEGBQQCAgMAAAAAAQACAxEEEiExQQUTUWFxkRQiMoGhI7HB0ULhFfEGM/D/2gAMAwEAAhEDEQA/ALH4f0qCxp1027MC05S81RjLhmyAPSqjLMMYIPI9sd+tNSggtLDDeuzzXiWKb5F9KA55C+pSEH4T7kfl0RqymnpUNavOtOnW4t/wgj+YNzKVBGcltp4zw3fpbeqWK0cfmXCaqIEEqRBZI5M/iJPdlY8gZPqHvjqm1rrdMrldx9Rqs1i1vhSbykksHKyAbd7oMjBYKMfoB17F5WdMpTxOtdR9VKy4RZckM5Utkj1kgDjvgdz0tiCrHFcfUb0jzOsc0BXc0EeQNxPOAwQj7AHPPWmuXGr2Ypzb36jTswRozKHhWMDceSOSqlTnsCT9ulSLTGGWtpXiCsRdsCtJLtiqk7Uljbb5hOD6SS23gDAH3x1DX02FdYttQivTUq8v052qj+Qf+kbgcgZQAg8MnfLdSNXuRa9JUr2q1v6ivuiNiSNnjAZpHK+6bCPj8LN79aR2xTlkptXiuM0axRt/DxHKedxBI5/CNxyPz4wJccqavqMHiLWnkjKwwyKYohLW82YlgqhiF5Db1fgEZz206jzO...";
 
   render();
 })();
