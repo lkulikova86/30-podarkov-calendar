@@ -1,0 +1,58 @@
+name: Bootstrap calendar site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download current live site
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL 'https://30-podarkov-calendar.netlify.app/' -o index.html
+          python - <<'PY'
+          from pathlib import Path
+          import re, urllib.request
+          p = Path('index.html')
+          html = p.read_text(encoding='utf-8')
+          # Download any local image assets referenced by the live HTML.
+          names = sorted(set(re.findall(r'["\']((?:new_anim|party_anim)_[^"\']+\.(?:webp|png|jpg|jpeg))["\']', html)))
+          base = 'https://30-podarkov-calendar.netlify.app/'
+          for name in names:
+              try:
+                  urllib.request.urlretrieve(base + name, name)
+                  print('downloaded', name)
+              except Exception as e:
+                  print('warning:', name, e)
+          # Add fixed daily override script slots once. Missing future files are harmless.
+          if 'gift-overrides-start' not in html:
+              import datetime
+              start = datetime.date(2026, 8, 24)
+              tags = ['<!-- gift-overrides-start -->']
+              for i in range(30):
+                  d = start + datetime.timedelta(days=i)
+                  tags.append(f'<script src="gifts/{d.isoformat()}.js"></script>')
+              tags.append('<!-- gift-overrides-end -->')
+              html = html.replace('</body>', '\n'.join(tags) + '\n</body>')
+          p.write_text(html, encoding='utf-8')
+          PY
+          mkdir -p gifts
+      - name: Commit site files
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html gifts/ new_anim_* party_anim_* 2>/dev/null || true
+          git commit -m 'Import current calendar site' || exit 0
+          git push
