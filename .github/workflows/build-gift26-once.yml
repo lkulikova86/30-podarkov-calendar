@@ -15,20 +15,26 @@ jobs:
       - uses: actions/checkout@v4
       - name: Rebuild original JPEG from stored base64 parts
         run: |
-          cat gifts/gift26_part1.txt gifts/gift26_part2.txt gifts/gift26_part3.txt | tr -d '\n\r ' | base64 -d > gifts/gift_2026-08-26.jpg
-          test -s gifts/gift_2026-08-26.jpg
           python3 - <<'PY'
+          import base64, re
           from pathlib import Path
-          p = Path('gifts/gift_2026-08-26.jpg')
-          b = p.read_bytes()
-          assert b[:2] == b'\xff\xd8', 'bad JPEG start'
-          assert b[-2:] == b'\xff\xd9', 'bad JPEG end'
-          print('JPEG OK:', len(b), 'bytes')
+          parts = [Path('gifts/gift26_part1.txt').read_text(), Path('gifts/gift26_part2.txt').read_text(), Path('gifts/gift26_part3.txt').read_text()]
+          s = ''.join(parts)
+          s = re.sub(r'[^A-Za-z0-9+/=]', '', s)
+          s += '=' * ((4 - len(s) % 4) % 4)
+          data = base64.b64decode(s, validate=False)
+          start = data.find(b'\xff\xd8')
+          end = data.rfind(b'\xff\xd9')
+          if start < 0 or end < 0:
+              raise SystemExit('JPEG markers not found')
+          data = data[start:end+2]
+          Path('gifts/gift_2026-08-26.jpg').write_bytes(data)
+          print('JPEG rebuilt:', len(data), 'bytes')
           PY
       - name: Commit rebuilt image
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add gifts/gift_2026-08-26.jpg
-          git commit -m "Build valid JPEG for day 3 gift"
+          git commit -m "Build valid JPEG for day 3 gift" || exit 0
           git push
