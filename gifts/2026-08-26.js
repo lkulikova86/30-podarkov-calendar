@@ -2,61 +2,47 @@
   const g = gifts.find(x => x.date === "2026-08-26");
   if (!g) return;
 
+  // Keep day 3 unlocked now.
   const previousIsLocked = isLocked;
   isLocked = function(item) {
     if (item === g) return false;
     return previousIsLocked(item);
   };
 
-  let photoUrl = null;
+  let photoReady = false;
 
-  function injectPhoto() {
-    if (!photoUrl) return;
-    g.image = photoUrl;
-    const modalDate = document.querySelector('.modal-date');
-    if (modalDate && modalDate.textContent.includes('26 AUG')) {
-      const gift = document.querySelector('.gift');
-      if (gift) {
-        let img = gift.querySelector('.gift-photo');
-        if (!img) {
-          img = document.createElement('img');
-          img.className = 'gift-photo';
-          img.alt = '';
-          gift.appendChild(img);
-        }
-        img.src = photoUrl;
-      }
-    }
-  }
-
-  async function loadPhoto() {
-    if (photoUrl) return photoUrl;
-    const parts = await Promise.all([
-      fetch('/gifts/gift26_part1.txt?v=4', {cache:'no-store'}).then(r => r.text()),
-      fetch('/gifts/gift26_part2.txt?v=4', {cache:'no-store'}).then(r => r.text()),
-      fetch('/gifts/gift26_part3.txt?v=4', {cache:'no-store'}).then(r => r.text())
-    ]);
+  const photoPromise = Promise.all([
+    fetch('/gifts/day3_photo_1.txt?v=1', { cache: 'no-store' }).then(r => {
+      if (!r.ok) throw new Error('day3 photo part 1 failed');
+      return r.text();
+    }),
+    fetch('/gifts/day3_photo_2.txt?v=1', { cache: 'no-store' }).then(r => {
+      if (!r.ok) throw new Error('day3 photo part 2 failed');
+      return r.text();
+    })
+  ]).then(parts => {
     const b64 = parts.join('').replace(/\s+/g, '');
-    const binary = atob(b64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    photoUrl = URL.createObjectURL(new Blob([bytes], {type:'image/jpeg'}));
-    injectPhoto();
-    return photoUrl;
-  }
-
-  loadPhoto().catch(console.error);
-  render();
+    if (!b64.startsWith('/9j/') || !b64.endsWith('/2Q==')) {
+      throw new Error('day3 JPEG data is invalid');
+    }
+    g.image = 'data:image/jpeg;base64,' + b64;
+    photoReady = true;
+    render();
+    return g.image;
+  }).catch(err => {
+    console.error('Day 3 photo failed:', err);
+  });
 
   const originalOpenGift = window.openGift;
   window.openGift = function(index) {
-    const result = originalOpenGift.apply(this, arguments);
-    if (index === 2) {
-      setTimeout(() => {
-        if (photoUrl) injectPhoto();
-        else loadPhoto().then(injectPhoto).catch(console.error);
-      }, 0);
+    if (index === 2 && !photoReady) {
+      photoPromise.then(() => {
+        if (photoReady) originalOpenGift.call(this, index);
+      });
+      return;
     }
-    return result;
+    return originalOpenGift.apply(this, arguments);
   };
+
+  render();
 })();
