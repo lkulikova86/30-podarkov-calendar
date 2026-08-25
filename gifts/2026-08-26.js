@@ -9,40 +9,7 @@
     return previousIsLocked(item);
   };
 
-  let photoReady = false;
-
-  const photoPromise = Promise.all([
-    fetch('/gifts/day3_photo_1.txt?v=1', { cache: 'no-store' }).then(r => {
-      if (!r.ok) throw new Error('day3 photo part 1 failed');
-      return r.text();
-    }),
-    fetch('/gifts/day3_photo_2.txt?v=1', { cache: 'no-store' }).then(r => {
-      if (!r.ok) throw new Error('day3 photo part 2 failed');
-      return r.text();
-    })
-  ]).then(parts => {
-    const b64 = parts.join('').replace(/\s+/g, '');
-    if (!b64.startsWith('/9j/') || !b64.endsWith('/2Q==')) {
-      throw new Error('day3 JPEG data is invalid');
-    }
-    g.image = 'data:image/jpeg;base64,' + b64;
-    photoReady = true;
-    render();
-    return g.image;
-  }).catch(err => {
-    console.error('Day 3 photo failed:', err);
-  });
-
-  const originalOpenGift = window.openGift;
-  window.openGift = function(index) {
-    if (index === 2 && !photoReady) {
-      photoPromise.then(() => {
-        if (photoReady) originalOpenGift.call(this, index);
-      });
-      return;
-    }
-    return originalOpenGift.apply(this, arguments);
-  };
-
+  // Real binary JPEG stored directly in the repository.
+  g.image = '/gifts/gift_2026-08-26.jpg?v=2';
   render();
 })();
