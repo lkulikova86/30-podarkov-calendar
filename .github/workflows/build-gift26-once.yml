@@ -13,9 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Rebuild JPEG from existing base64 parts
+      - name: Convert existing WebP gift image to JPEG
         run: |
-          cat gifts/gift26_part1.txt gifts/gift26_part2.txt gifts/gift26_part3.txt | tr -d '\n\r ' | base64 -d > gifts/gift_2026-08-26.jpg
+          file gifts/gift_2026-08-26.webp
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq imagemagick
+          convert gifts/gift_2026-08-26.webp -quality 92 gifts/gift_2026-08-26.jpg
           file gifts/gift_2026-08-26.jpg
       - name: Commit rebuilt image
         run: |
