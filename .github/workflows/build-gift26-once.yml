@@ -13,14 +13,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Rebuild JPEG from stored base64 parts
+      - name: Rebuild original JPEG from stored base64 parts
         run: |
           cat gifts/gift26_part1.txt gifts/gift26_part2.txt gifts/gift26_part3.txt | tr -d '\n\r ' | base64 -d > gifts/gift_2026-08-26.jpg
-          file gifts/gift_2026-08-26.jpg
+          test -s gifts/gift_2026-08-26.jpg
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('gifts/gift_2026-08-26.jpg')
+          b = p.read_bytes()
+          assert b[:2] == b'\xff\xd8', 'bad JPEG start'
+          assert b[-2:] == b'\xff\xd9', 'bad JPEG end'
+          print('JPEG OK:', len(b), 'bytes')
+          PY
       - name: Commit rebuilt image
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add gifts/gift_2026-08-26.jpg
-          git commit -m "Build valid JPEG for day 3 gift" || exit 0
+          git commit -m "Build valid JPEG for day 3 gift"
           git push
