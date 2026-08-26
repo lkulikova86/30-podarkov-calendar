@@ -51,6 +51,21 @@ jobs:
           s = s.replace('const total = 12;', 'const total = 18;', 1)
           s = s.replace('const duration = 45 + Math.random() * 25;', 'const duration = 14 + Math.random() * 8;', 1)
 
+          broken_pool = 'const FALLING_PHOTOS = [PARTY_FACE, EXTRA_FESTIVE_STICKER_1, EXTRA_FESTIVE_STICKER_2, EXTRA_NEW_STICKER_1, EXTRA_NEW_STICKER_2, EXTRA_NEW_STICKER_3, "party_anim_1.png", "party_anim_2.png", "party_anim_3.png", "new_party_anim_01.png", "new_party_anim_02.png", "new_party_anim_03.png", "new_party_anim_04.png", "new_party_anim_05.png", "new_party_anim_06.png", "new_party_anim_07.png", "new_party_anim_08.png", "new_party_anim_09.png", "new_party_anim_10.png"];'
+          netlify_pool = 'const FALLING_PHOTOS = [PARTY_FACE, EXTRA_FESTIVE_STICKER_1, EXTRA_FESTIVE_STICKER_2, EXTRA_NEW_STICKER_1, EXTRA_NEW_STICKER_2, EXTRA_NEW_STICKER_3, EXTRA_PLAIN_STICKER_1, EXTRA_PLAIN_STICKER_2, EXTRA_PLAIN_STICKER_3, EXTRA_PARTY_ADDED_1, EXTRA_PARTY_ADDED_2, EXTRA_PARTY_ADDED_3, "new_anim_01.webp", "new_anim_02.webp", "new_anim_03.webp", "new_anim_04.webp", "new_anim_05.webp", "new_anim_06.webp", "new_anim_07.webp", "new_anim_08.webp", "new_anim_09.webp", "new_anim_10.webp", "new_anim_11.webp", "new_anim_12.webp", "new_anim_13.webp"];'
+          if broken_pool not in s:
+              raise SystemExit('Current animation pool not found')
+          s = s.replace(broken_pool, netlify_pool, 1)
+
+          loop_marker = '  for(let i = 0; i < total; i++){'
+          if loop_marker not in s:
+              raise SystemExit('Animation loop marker not found')
+          s = s.replace(loop_marker, '  const animationOffset = Math.floor(Math.random() * FALLING_PHOTOS.length);\n\n  for(let i = 0; i < total; i++){', 1)
+          random_choice = '    const chosen = FALLING_PHOTOS[Math.floor(Math.random() * FALLING_PHOTOS.length)];'
+          if random_choice not in s:
+              raise SystemExit('Animation choice marker not found')
+          s = s.replace(random_choice, '    const chosen = FALLING_PHOTOS[(animationOffset + i) % FALLING_PHOTOS.length];', 1)
+
           old3 = '{date:"2026-08-26", day:"26", month:"AUG", gift:"Подарок №3", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"От человека №3"}'
           new3 = '{date:"2026-08-26", day:"26", month:"AUG", gift:"Подарок №3", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Любимая жена", image:"gifts/day3_photo.jpg?v=9"}'
           if old3 in s:
@@ -63,9 +78,13 @@ jobs:
           s = s.replace(old4, new4, 1)
           p.write_text(s, encoding='utf-8')
 
+          if '"new_anim_13.webp"' not in s or 'EXTRA_PARTY_ADDED_3' not in s:
+              raise SystemExit('Full Netlify animation pool verification failed')
+          if 'FALLING_PHOTOS[(animationOffset + i) % FALLING_PHOTOS.length]' not in s:
+              raise SystemExit('Unique animation selection patch failed')
           if 'from:"Любимая жена", image:"gifts/day4_photo.jpg?v=14"' not in s:
               raise SystemExit('Day 4 image patch verification failed')
-          print(f'CURRENT_DEPLOY_OK day4={len(day4)} bytes verified JPEG, cache v14')
+          print(f'CURRENT_DEPLOY_OK: 18 unique visible animations from 25-item Netlify pool; day4={len(day4)} bytes')
           PY
       - name: Publish current main to permanent ShipStatic address
         uses: shipstatic/action@v2
