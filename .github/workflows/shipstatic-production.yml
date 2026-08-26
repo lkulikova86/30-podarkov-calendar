@@ -70,7 +70,7 @@ jobs:
 
           # Day 4 is now rendered exactly like day 3: a normal JPEG URL.
           old4 = '{date:"2026-08-27", day:"27", month:"AUG", gift:"Подарок №4", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"От человека №4"}'
-          new4 = '{date:"2026-08-27", day:"27", month:"AUG", gift:"Подарок №4", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Любимая жена", image:"gifts/day4_photo.jpg?v=12"}'
+          new4 = '{date:"2026-08-27", day:"27", month:"AUG", gift:"Подарок №4", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Любимая жена", image:"gifts/day4_photo.jpg?v=13"}'
           if old4 not in s:
               raise SystemExit('Day 4 placeholder not found in index.html')
           s = s.replace(old4, new4, 1)
@@ -83,7 +83,7 @@ jobs:
               raise SystemExit('Animation speed patch verification failed')
           if 'from:"Любимая жена", image:"gifts/day3_photo.jpg?v=9"' not in s:
               raise SystemExit('Day 3 sender patch verification failed')
-          if 'from:"Любимая жена", image:"gifts/day4_photo.jpg?v=12"' not in s:
+          if 'from:"Любимая жена", image:"gifts/day4_photo.jpg?v=13"' not in s:
               raise SystemExit('Day 4 image patch verification failed')
           if not Path('dist/gifts/day4_photo.jpg').exists():
               raise SystemExit('Day 4 JPEG was not written')
