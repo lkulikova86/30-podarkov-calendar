@@ -40,8 +40,7 @@ jobs:
               raise SystemExit('Day 3 JPEG failed validation')
           Path('dist/gifts/day3_photo.jpg').write_bytes(data)
 
-          # Day 4: use the SAME delivery method as day 3: rebuild a normal JPEG
-          # during the build, then reference that JPEG from the gift object.
+          # Day 4: rebuild the verified compact JPEG.
           day4_b64 = Path('gifts/day4_photo_b64.txt').read_text(encoding='utf-8')
           day4_b64 = day4_b64.replace('\n', '').replace('\r', '').replace(' ', '')
           day4_data = base64.b64decode(day4_b64, validate=True)
@@ -52,7 +51,6 @@ jobs:
           p = Path('dist/index.html')
           s = p.read_text(encoding='utf-8')
 
-          # Make the falling faces denser and much faster.
           if 'const total = 12;' not in s:
               raise SystemExit('Animation count setting not found')
           s = s.replace('const total = 12;', 'const total = 18;', 1)
@@ -61,16 +59,14 @@ jobs:
               raise SystemExit('Animation speed setting not found')
           s = s.replace('const duration = 45 + Math.random() * 25;', 'const duration = 14 + Math.random() * 8;', 1)
 
-          # Keep day 3 data patched into the production build.
           old = '{date:"2026-08-26", day:"26", month:"AUG", gift:"Подарок №3", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"От человека №3"}'
           new = '{date:"2026-08-26", day:"26", month:"AUG", gift:"Подарок №3", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Любимая жена", image:"gifts/day3_photo.jpg?v=9"}'
           if old not in s:
               raise SystemExit('Day 3 placeholder not found in index.html')
           s = s.replace(old, new, 1)
 
-          # Day 4 is now rendered exactly like day 3: a normal JPEG URL.
           old4 = '{date:"2026-08-27", day:"27", month:"AUG", gift:"Подарок №4", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"От человека №4"}'
-          new4 = '{date:"2026-08-27", day:"27", month:"AUG", gift:"Подарок №4", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Любимая жена", image:"gifts/day4_photo.jpg?v=13"}'
+          new4 = '{date:"2026-08-27", day:"27", month:"AUG", gift:"Подарок №4", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Любимая жена", image:"gifts/day4_photo.jpg?v=14"}'
           if old4 not in s:
               raise SystemExit('Day 4 placeholder not found in index.html')
           s = s.replace(old4, new4, 1)
@@ -83,11 +79,13 @@ jobs:
               raise SystemExit('Animation speed patch verification failed')
           if 'from:"Любимая жена", image:"gifts/day3_photo.jpg?v=9"' not in s:
               raise SystemExit('Day 3 sender patch verification failed')
-          if 'from:"Любимая жена", image:"gifts/day4_photo.jpg?v=13"' not in s:
+          if 'from:"Любимая жена", image:"gifts/day4_photo.jpg?v=14"' not in s:
               raise SystemExit('Day 4 image patch verification failed')
           if not Path('dist/gifts/day4_photo.jpg').exists():
               raise SystemExit('Day 4 JPEG was not written')
-          print(f'DEPLOY_OK: 18 falling faces, 14-22s speed, day3 {len(data)} bytes, day4 {len(day4_data)} bytes as normal JPEG')
+          if len(day4_data) != 6397:
+              raise SystemExit(f'Day 4 JPEG unexpected size: {len(day4_data)}')
+          print(f'DEPLOY_OK: day4 {len(day4_data)} bytes verified JPEG, cache v14')
           PY
       - name: Publish to permanent ShipStatic address
         uses: shipstatic/action@v2
