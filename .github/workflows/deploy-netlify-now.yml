@@ -1,0 +1,18 @@
+name: Deploy current site to Netlify
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-netlify-now.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy existing Netlify site
+        shell: bash
+        run: |
+          npx -y @netlify/mcp@latest --site-id 70831782-3cba-475e-b5cb-53bdd5e7501f --proxy-path "https://netlify-mcp.netlify.app/proxy/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..Xr_Bi-0mHbEAEm16.29S6pcjkFygsPDFrCeHmmKjz-Hx6GAIbXw3ROOxeyFZVh-mHJ10gMK8DkNmgtQBgeiTo0gfJw6LlKsYDFEf8FlYgsrvKIOYyKw-BaeY8gDaQVplzgci-wwt3QgOt5-v4BbSUZINzShzzOcPraOLvqXL_162mkV4p_OliJvsk6nfSqgXpRVto8T__pAIddrQ52AEU4hEYOx8YXXwAQO8sf8ZXjCfVZ9eZl5FBADRue3gW7Q5BgJ6Ap--vBTZLMswaufJ6MBeCyRi9oKf1d9c9VRn17Omui8RHY_rNKBKaSPQ1Nw8vmnBEWtnLqU9OLgkoqJxNZO_izcBnER1X7Oju-Ev0ScbmAspCVgQx5DS2RrQ1qjOBnpV7r6qxLDaKjm-eoKRKg1qw.Bf1ZnLn12g6bd3Ld5sQoHQ"
