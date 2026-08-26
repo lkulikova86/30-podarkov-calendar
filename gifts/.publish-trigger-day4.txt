@@ -1,1 +1,1 @@
-Trigger final day 4 deploy with verified 6397-byte JPEG and cache v14.
+Trigger deployment after restoring the full Netlify animation pool: 25 variants, 18 different visible at once.
