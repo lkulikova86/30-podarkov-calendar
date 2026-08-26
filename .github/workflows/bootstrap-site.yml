@@ -53,3 +53,5 @@ jobs:
           git add index.html gifts/2026-08-25.jpg
           git commit -m 'Show 25 August gift photo' || exit 0
           git push
+
+# trigger: refresh day 2 photo
