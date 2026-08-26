@@ -55,13 +55,13 @@ jobs:
               s = s.replace(old3, new3, 1)
 
           old4 = '{date:"2026-08-27", day:"27", month:"AUG", gift:"Подарок №4", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"От человека №4"}'
-          new4 = '{date:"2026-08-27", day:"27", month:"AUG", gift:"Подарок №4", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Любимая жена", image:"gifts/day4_photo.jpg?v=12"}'
+          new4 = '{date:"2026-08-27", day:"27", month:"AUG", gift:"Подарок №4", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Любимая жена", image:"gifts/day4_photo.jpg?v=13"}'
           if old4 not in s:
               raise SystemExit('Day 4 placeholder not found')
           s = s.replace(old4, new4, 1)
           p.write_text(s, encoding='utf-8')
 
-          if 'from:"Любимая жена", image:"gifts/day4_photo.jpg?v=12"' not in s:
+          if 'from:"Любимая жена", image:"gifts/day4_photo.jpg?v=13"' not in s:
               raise SystemExit('Day 4 image patch verification failed')
           if not Path('dist/gifts/day4_photo.jpg').exists():
               raise SystemExit('Day 4 JPEG was not written')
