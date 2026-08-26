@@ -1,0 +1,34 @@
+name: Publish birthday calendar
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'new_anim_*.webp'
+      - 'gifts/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build static package
+        shell: bash
+        run: |
+          set -e
+          rm -rf dist
+          mkdir -p dist/gifts
+          cp index.html dist/index.html
+          cp new_anim_*.webp dist/
+          cp -a gifts/. dist/gifts/
+      - name: Publish to permanent ShipStatic address
+        uses: shipstatic/action@v2
+        with:
+          token: ${{ secrets.SHIP_TOKEN }}
+          path: ./dist
+          domain: 30-podarkov-calendar.shipstatic.com
