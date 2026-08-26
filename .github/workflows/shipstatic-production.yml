@@ -29,30 +29,28 @@ jobs:
           cp -a gifts/. dist/gifts/
           python - <<'PY'
           from pathlib import Path
-          import base64
 
-          p1 = Path('gifts/day3_photo_1.txt').read_text(encoding='utf-8')
-          p2 = Path('gifts/day3_photo_2.txt').read_text(encoding='utf-8')
-          b64 = (p1 + p2).replace('\n', '').replace('\r', '').replace(' ', '')
-          data = base64.b64decode(b64, validate=True)
+          photo = Path('dist/gifts/day3_photo.jpg')
+          if not photo.exists():
+              raise SystemExit('Day 3 photo missing')
+          data = photo.read_bytes()
+          if len(data) < 100000:
+              raise SystemExit(f'Day 3 photo too small: {len(data)} bytes')
           if not (data.startswith(b'\xff\xd8') and data.endswith(b'\xff\xd9')):
               raise SystemExit('Day 3 JPEG failed validation')
-          if len(data) < 15000:
-              raise SystemExit(f'Day 3 JPEG too small: {len(data)} bytes')
-          Path('dist/gifts/day3_photo.jpg').write_bytes(data)
 
           p = Path('dist/index.html')
           s = p.read_text(encoding='utf-8')
           old = '{date:"2026-08-26", day:"26", month:"AUG", gift:"Подарок №3", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"От человека №3"}'
-          new = '{date:"2026-08-26", day:"26", month:"AUG", gift:"Подарок №3", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"любимая жена", image:"gifts/day3_photo.jpg?v=6"}'
+          new = '{date:"2026-08-26", day:"26", month:"AUG", gift:"Подарок №3", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"любимая жена", image:"gifts/day3_photo.jpg?v=7"}'
           if old not in s:
               raise SystemExit('Day 3 placeholder not found in index.html')
           s = s.replace(old, new, 1)
           p.write_text(s, encoding='utf-8')
 
-          if 'from:"любимая жена", image:"gifts/day3_photo.jpg?v=6"' not in s:
+          if 'from:"любимая жена", image:"gifts/day3_photo.jpg?v=7"' not in s:
               raise SystemExit('Day 3 patch verification failed')
-          print(f'DAY3_OK: JPEG {len(data)} bytes + sender in production build')
+          print(f'DAY3_OK: clean JPEG {len(data)} bytes + sender in production build')
           PY
       - name: Publish to permanent ShipStatic address
         uses: shipstatic/action@v2
