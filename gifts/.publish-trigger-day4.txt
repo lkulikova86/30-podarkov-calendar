@@ -1,1 +1,1 @@
-Trigger production deploy for day 4 after adding photo and sender.
+Trigger final day 4 deploy with verified 6397-byte JPEG and cache v14.
