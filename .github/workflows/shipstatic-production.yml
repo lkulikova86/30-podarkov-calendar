@@ -42,6 +42,17 @@ jobs:
 
           p = Path('dist/index.html')
           s = p.read_text(encoding='utf-8')
+
+          # Make the falling faces denser and much faster.
+          if 'const total = 12;' not in s:
+              raise SystemExit('Animation count setting not found')
+          s = s.replace('const total = 12;', 'const total = 18;', 1)
+
+          if 'const duration = 45 + Math.random() * 25;' not in s:
+              raise SystemExit('Animation speed setting not found')
+          s = s.replace('const duration = 45 + Math.random() * 25;', 'const duration = 14 + Math.random() * 8;', 1)
+
+          # Keep day 3 data patched into the production build.
           old = '{date:"2026-08-26", day:"26", month:"AUG", gift:"Подарок №3", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"От человека №3"}'
           new = '{date:"2026-08-26", day:"26", month:"AUG", gift:"Подарок №3", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Любимая жена", image:"gifts/day3_photo.jpg?v=9"}'
           if old not in s:
@@ -49,9 +60,13 @@ jobs:
           s = s.replace(old, new, 1)
           p.write_text(s, encoding='utf-8')
 
+          if 'const total = 18;' not in s:
+              raise SystemExit('Animation count patch verification failed')
+          if 'const duration = 14 + Math.random() * 8;' not in s:
+              raise SystemExit('Animation speed patch verification failed')
           if 'from:"Любимая жена", image:"gifts/day3_photo.jpg?v=9"' not in s:
               raise SystemExit('Day 3 sender patch verification failed')
-          print(f'DAY3_OK: {len(data)} bytes + capitalized sender')
+          print(f'DEPLOY_OK: 18 falling faces, 14-22s speed, day3 {len(data)} bytes')
           PY
       - name: Publish to permanent ShipStatic address
         uses: shipstatic/action@v2
