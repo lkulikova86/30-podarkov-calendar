@@ -40,7 +40,6 @@ jobs:
           day4 = base64.b64decode(b64, validate=True)
           if not (day4.startswith(b'\xff\xd8') and day4.endswith(b'\xff\xd9')):
               raise SystemExit('Day 4 JPEG failed validation')
-          Path('dist/gifts/day4_photo.jpg').write_bytes(day4)
 
           p = Path('dist/index.html')
           s = p.read_text(encoding='utf-8')
@@ -53,15 +52,15 @@ jobs:
               s = s.replace(old3, new3, 1)
 
           old4 = '{date:"2026-08-27", day:"27", month:"AUG", gift:"Подарок №4", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"От человека №4"}'
-          new4 = '{date:"2026-08-27", day:"27", month:"AUG", gift:"Подарок №4", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Любимая жена", image:"gifts/day4_photo.jpg?v=1"}'
+          new4 = '{date:"2026-08-27", day:"27", month:"AUG", gift:"Подарок №4", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Любимая жена", image:"data:image/jpeg;base64,' + b64 + '"}'
           if old4 not in s:
               raise SystemExit('Day 4 placeholder not found')
           s = s.replace(old4, new4, 1)
           p.write_text(s, encoding='utf-8')
 
-          if 'from:"Любимая жена", image:"gifts/day4_photo.jpg?v=1"' not in s:
-              raise SystemExit('Day 4 patch verification failed')
-          print(f'CURRENT_DEPLOY_OK day4={len(day4)} bytes')
+          if 'from:"Любимая жена", image:"data:image/jpeg;base64,' not in s:
+              raise SystemExit('Day 4 inline image patch verification failed')
+          print(f'CURRENT_DEPLOY_OK inline day4={len(day4)} bytes')
           PY
       - name: Publish current main to permanent ShipStatic address
         uses: shipstatic/action@v2
