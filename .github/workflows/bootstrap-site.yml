@@ -24,17 +24,19 @@ jobs:
           from pathlib import Path
           import re, base64
 
-          js_path = Path('gifts/2026-08-25.js')
           index_path = Path('index.html')
-          js = js_path.read_text(encoding='utf-8')
           html = index_path.read_text(encoding='utf-8')
 
-          m = re.search(r'g\.image\s*=\s*"data:image/jpeg;base64,([A-Za-z0-9+/=]+)"', js)
-          if not m:
-              raise SystemExit('Could not find the 25 August JPEG in gift override')
+          parts = []
+          for i in range(1, 5):
+              parts.append(Path(f'gifts/day2_photo_{i}.txt').read_text(encoding='utf-8').strip())
+          b64 = ''.join(parts).replace('\n', '').replace('\r', '').replace(' ', '')
+          photo_bytes = base64.b64decode(b64, validate=True)
+          if not photo_bytes.startswith(b'\xff\xd8') or not photo_bytes.endswith(b'\xff\xd9'):
+              raise SystemExit('Invalid JPEG data for 25 August')
 
           photo_path = Path('gifts/2026-08-25.jpg')
-          photo_path.write_bytes(base64.b64decode(m.group(1)))
+          photo_path.write_bytes(photo_bytes)
 
           pattern = r'\{date:"2026-08-25", day:"25", month:"AUG", gift:"Подарок №2", note:"[^"]*", from:"[^"]*"(?:, image:[^}]*)?\}'
           replacement = '{date:"2026-08-25", day:"25", month:"AUG", gift:"Подарок №2", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Любимая жена", image:"gifts/2026-08-25.jpg"}'
@@ -42,7 +44,7 @@ jobs:
           if count != 1:
               raise SystemExit(f'Could not patch 25 August gift object, matches={count}')
           index_path.write_text(html2, encoding='utf-8')
-          print('Patched 25 August gift and wrote', photo_path)
+          print('Patched 25 August gift:', len(photo_bytes), 'JPEG bytes')
           PY
       - name: Commit fix
         shell: bash
@@ -51,7 +53,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html gifts/2026-08-25.jpg
-          git commit -m 'Show 25 August gift photo' || exit 0
+          git commit -m 'Show Spider-Man photo on 25 August' || exit 0
           git push
 
-# trigger: refresh Spider-Man day 2 photo
+# trigger: build Spider-Man day 2 from validated chunks
