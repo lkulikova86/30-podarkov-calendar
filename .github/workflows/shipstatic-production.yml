@@ -40,6 +40,14 @@ jobs:
               raise SystemExit('Day 3 JPEG failed validation')
           Path('dist/gifts/day3_photo.jpg').write_bytes(data)
 
+          # Rebuild day 4 photo from a text-safe base64 file.
+          day4_b64 = Path('gifts/day4_photo_b64.txt').read_text(encoding='utf-8')
+          day4_b64 = day4_b64.replace('\n', '').replace('\r', '').replace(' ', '')
+          day4_data = base64.b64decode(day4_b64, validate=True)
+          if not (day4_data.startswith(b'\xff\xd8') and day4_data.endswith(b'\xff\xd9')):
+              raise SystemExit('Day 4 JPEG failed validation')
+          Path('dist/gifts/day4_photo.jpg').write_bytes(day4_data)
+
           p = Path('dist/index.html')
           s = p.read_text(encoding='utf-8')
 
@@ -58,6 +66,14 @@ jobs:
           if old not in s:
               raise SystemExit('Day 3 placeholder not found in index.html')
           s = s.replace(old, new, 1)
+
+          # Patch day 4 into the production build.
+          old4 = '{date:"2026-08-27", day:"27", month:"AUG", gift:"Подарок №4", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"От человека №4"}'
+          new4 = '{date:"2026-08-27", day:"27", month:"AUG", gift:"Подарок №4", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Любимая жена", image:"gifts/day4_photo.jpg?v=1"}'
+          if old4 not in s:
+              raise SystemExit('Day 4 placeholder not found in index.html')
+          s = s.replace(old4, new4, 1)
+
           p.write_text(s, encoding='utf-8')
 
           if 'const total = 18;' not in s:
@@ -66,7 +82,9 @@ jobs:
               raise SystemExit('Animation speed patch verification failed')
           if 'from:"Любимая жена", image:"gifts/day3_photo.jpg?v=9"' not in s:
               raise SystemExit('Day 3 sender patch verification failed')
-          print(f'DEPLOY_OK: 18 falling faces, 14-22s speed, day3 {len(data)} bytes')
+          if 'from:"Любимая жена", image:"gifts/day4_photo.jpg?v=1"' not in s:
+              raise SystemExit('Day 4 sender patch verification failed')
+          print(f'DEPLOY_OK: 18 falling faces, 14-22s speed, day3 {len(data)} bytes, day4 {len(day4_data)} bytes')
           PY
       - name: Publish to permanent ShipStatic address
         uses: shipstatic/action@v2
