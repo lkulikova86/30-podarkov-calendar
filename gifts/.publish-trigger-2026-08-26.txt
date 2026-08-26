@@ -1,0 +1,1 @@
+Publish current birthday calendar to permanent ShipStatic domain after SHIP_TOKEN setup.
