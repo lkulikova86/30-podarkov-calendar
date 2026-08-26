@@ -29,3 +29,8 @@ jobs:
         uses: shipstatic/action@v2
         with:
           path: ./dist
+      - name: Show preview links
+        shell: bash
+        run: |
+          echo "URL=${{ steps.ship.outputs.url }}"
+          echo "CLAIM=${{ steps.ship.outputs.claim }}"
