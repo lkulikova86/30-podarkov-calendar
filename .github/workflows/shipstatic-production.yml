@@ -7,6 +7,7 @@ on:
       - 'index.html'
       - 'new_anim_*.webp'
       - 'gifts/**'
+      - '.github/workflows/shipstatic-production.yml'
   workflow_dispatch:
 
 permissions:
@@ -26,6 +27,24 @@ jobs:
           cp index.html dist/index.html
           cp new_anim_*.webp dist/
           cp -a gifts/. dist/gifts/
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('dist/index.html')
+          s = p.read_text(encoding='utf-8')
+          old = '{date:"2026-08-26", day:"26", month:"AUG", gift:"Подарок №3", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"От человека №3"}'
+          new = '{date:"2026-08-26", day:"26", month:"AUG", gift:"Подарок №3", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"любимая жена", image:"gifts/day3_photo.jpg?v=4"}'
+          if old not in s:
+              raise SystemExit('Day 3 placeholder not found in index.html')
+          s = s.replace(old, new, 1)
+          p.write_text(s, encoding='utf-8')
+
+          if not Path('dist/gifts/day3_photo.jpg').exists():
+              raise SystemExit('Day 3 photo is missing from build')
+          if 'from:"любимая жена", image:"gifts/day3_photo.jpg?v=4"' not in s:
+              raise SystemExit('Day 3 patch verification failed')
+          print('DAY3_OK: photo + sender are in the production build')
+          PY
       - name: Publish to permanent ShipStatic address
         uses: shipstatic/action@v2
         with:
