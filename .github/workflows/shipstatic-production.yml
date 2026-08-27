@@ -88,6 +88,12 @@ jobs:
               raise SystemExit('Day 4 placeholder not found in index.html')
           s = s.replace(old4, new4, 1)
 
+          old5 = '{date:"2026-08-28", day:"28", month:"AUG", gift:"Подарок №5", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"От человека №5"}'
+          new5 = '{date:"2026-08-28", day:"28", month:"AUG", gift:"Подарок №5", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Бабушка", image:"gifts/day5_photo.jpg?v=1"}'
+          if old5 not in s:
+              raise SystemExit('Day 5 placeholder not found in index.html')
+          s = s.replace(old5, new5, 1)
+
           p.write_text(s, encoding='utf-8')
 
           if 'const total = 18;' not in s:
@@ -104,11 +110,18 @@ jobs:
               raise SystemExit('Day 3 sender patch verification failed')
           if 'from:"Любимая жена", image:"gifts/day4_photo.jpg?v=14"' not in s:
               raise SystemExit('Day 4 image patch verification failed')
+          if 'from:"Бабушка", image:"gifts/day5_photo.jpg?v=1"' not in s:
+              raise SystemExit('Day 5 image patch verification failed')
           if not Path('dist/gifts/day4_photo.jpg').exists():
               raise SystemExit('Day 4 JPEG was not written')
           if len(day4_data) != 6397:
               raise SystemExit(f'Day 4 JPEG unexpected size: {len(day4_data)}')
-          print(f'DEPLOY_OK: 18 unique visible animations from 25-item Netlify pool; day4 {len(day4_data)} bytes')
+          if not Path('dist/gifts/day5_photo.jpg').exists():
+              raise SystemExit('Day 5 JPEG missing from deployment')
+          day5_data = Path('dist/gifts/day5_photo.jpg').read_bytes()
+          if not (day5_data.startswith(b'\xff\xd8') and day5_data.endswith(b'\xff\xd9')):
+              raise SystemExit('Day 5 JPEG failed validation')
+          print(f'DEPLOY_OK: 18 unique visible animations from 25-item Netlify pool; day4 {len(day4_data)} bytes; day5 {len(day5_data)} bytes')
           PY
       - name: Publish to permanent ShipStatic address
         uses: shipstatic/action@v2
