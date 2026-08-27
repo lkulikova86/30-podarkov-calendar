@@ -76,6 +76,13 @@ jobs:
           if old4 not in s:
               raise SystemExit('Day 4 placeholder not found')
           s = s.replace(old4, new4, 1)
+
+          old5 = '{date:"2026-08-28", day:"28", month:"AUG", gift:"Подарок №5", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"От человека №5"}'
+          new5 = '{date:"2026-08-28", day:"28", month:"AUG", gift:"Подарок №5", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"Бабушка", image:"gifts/day5_photo.jpg?v=2"}'
+          if old5 not in s:
+              raise SystemExit('Day 5 placeholder not found')
+          s = s.replace(old5, new5, 1)
+
           p.write_text(s, encoding='utf-8')
 
           if '"new_anim_13.webp"' not in s or 'EXTRA_PARTY_ADDED_3' not in s:
@@ -84,7 +91,12 @@ jobs:
               raise SystemExit('Unique animation selection patch failed')
           if 'from:"Любимая жена", image:"gifts/day4_photo.jpg?v=14"' not in s:
               raise SystemExit('Day 4 image patch verification failed')
-          print(f'CURRENT_DEPLOY_OK: 18 unique visible animations from 25-item Netlify pool; day4={len(day4)} bytes')
+          if 'from:"Бабушка", image:"gifts/day5_photo.jpg?v=2"' not in s:
+              raise SystemExit('Day 5 image patch verification failed')
+          day5 = Path('dist/gifts/day5_photo.jpg').read_bytes()
+          if not (day5.startswith(b'\xff\xd8') and day5.endswith(b'\xff\xd9')):
+              raise SystemExit('Day 5 JPEG failed validation')
+          print(f'CURRENT_DEPLOY_OK: 18 unique visible animations from 25-item Netlify pool; day4={len(day4)} bytes; day5={len(day5)} bytes')
           PY
       - name: Publish current main to permanent ShipStatic address
         uses: shipstatic/action@v2
