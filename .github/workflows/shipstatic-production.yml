@@ -31,7 +31,6 @@ jobs:
           from pathlib import Path
           import base64
 
-          # Day 3: rebuild a normal JPEG file from text-safe base64.
           p1 = Path('gifts/day3_photo_1.txt').read_text(encoding='utf-8')
           p2 = Path('gifts/day3_photo_2.txt').read_text(encoding='utf-8')
           b64 = (p1 + p2).replace('\n', '').replace('\r', '').replace(' ', '')
@@ -40,7 +39,6 @@ jobs:
               raise SystemExit('Day 3 JPEG failed validation')
           Path('dist/gifts/day3_photo.jpg').write_bytes(data)
 
-          # Day 4: rebuild the verified compact JPEG.
           day4_b64 = Path('gifts/day4_photo_b64.txt').read_text(encoding='utf-8')
           day4_b64 = day4_b64.replace('\n', '').replace('\r', '').replace(' ', '')
           day4_data = base64.b64decode(day4_b64, validate=True)
@@ -59,14 +57,12 @@ jobs:
               raise SystemExit('Animation speed setting not found')
           s = s.replace('const duration = 45 + Math.random() * 25;', 'const duration = 14 + Math.random() * 8;', 1)
 
-          # Restore the full animation pool from the working Netlify version.
           broken_pool = 'const FALLING_PHOTOS = [PARTY_FACE, EXTRA_FESTIVE_STICKER_1, EXTRA_FESTIVE_STICKER_2, EXTRA_NEW_STICKER_1, EXTRA_NEW_STICKER_2, EXTRA_NEW_STICKER_3, "party_anim_1.png", "party_anim_2.png", "party_anim_3.png", "new_party_anim_01.png", "new_party_anim_02.png", "new_party_anim_03.png", "new_party_anim_04.png", "new_party_anim_05.png", "new_party_anim_06.png", "new_party_anim_07.png", "new_party_anim_08.png", "new_party_anim_09.png", "new_party_anim_10.png"];'
           netlify_pool = 'const FALLING_PHOTOS = [PARTY_FACE, EXTRA_FESTIVE_STICKER_1, EXTRA_FESTIVE_STICKER_2, EXTRA_NEW_STICKER_1, EXTRA_NEW_STICKER_2, EXTRA_NEW_STICKER_3, EXTRA_PLAIN_STICKER_1, EXTRA_PLAIN_STICKER_2, EXTRA_PLAIN_STICKER_3, EXTRA_PARTY_ADDED_1, EXTRA_PARTY_ADDED_2, EXTRA_PARTY_ADDED_3, "new_anim_01.webp", "new_anim_02.webp", "new_anim_03.webp", "new_anim_04.webp", "new_anim_05.webp", "new_anim_06.webp", "new_anim_07.webp", "new_anim_08.webp", "new_anim_09.webp", "new_anim_10.webp", "new_anim_11.webp", "new_anim_12.webp", "new_anim_13.webp"];'
           if broken_pool not in s:
               raise SystemExit('Current animation pool not found')
           s = s.replace(broken_pool, netlify_pool, 1)
 
-          # Keep all visible falling animations different from each other.
           loop_marker = '  for(let i = 0; i < total; i++){'
           if loop_marker not in s:
               raise SystemExit('Animation loop marker not found')
@@ -94,7 +90,6 @@ jobs:
               raise SystemExit('Day 5 placeholder not found in index.html')
           s = s.replace(old5, new5, 1)
 
-          # Birthday surprise for the 28 August / gift 5 card.
           birthday_heading = '    <h3>Сегодняшний подарок — твой ✨</h3>'
           birthday_heading_new = '    <h3>${g.date === "2026-08-28" ? "С днём рождения! 🎉💖" : "Сегодняшний подарок — твой ✨"}</h3>'
           if birthday_heading not in s:
@@ -102,19 +97,7 @@ jobs:
           s = s.replace(birthday_heading, birthday_heading_new, 1)
 
           birthday_close = '  `);\n}\nfunction revealSender(){'
-          birthday_close_new = '''  `);
-
-  if(g.date === "2026-08-28"){
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    setTimeout(() => burstConfetti(w * .22, h * .28), 80);
-    setTimeout(() => burstConfetti(w * .50, h * .20), 160);
-    setTimeout(() => burstConfetti(w * .78, h * .28), 240);
-    setTimeout(() => burstConfetti(w * .35, h * .46), 380);
-    setTimeout(() => burstConfetti(w * .65, h * .46), 520);
-  }
-}
-function revealSender(){'''
+          birthday_close_new = '  `);\n\n  if(g.date === "2026-08-28"){\n    const w = window.innerWidth;\n    const h = window.innerHeight;\n    setTimeout(() => burstConfetti(w * .22, h * .28), 80);\n    setTimeout(() => burstConfetti(w * .50, h * .20), 160);\n    setTimeout(() => burstConfetti(w * .78, h * .28), 240);\n    setTimeout(() => burstConfetti(w * .35, h * .46), 380);\n    setTimeout(() => burstConfetti(w * .65, h * .46), 520);\n  }\n}\nfunction revealSender(){'
           if birthday_close not in s:
               raise SystemExit('Birthday confetti marker not found')
           s = s.replace(birthday_close, birthday_close_new, 1)
@@ -137,8 +120,10 @@ function revealSender(){'''
               raise SystemExit('Day 4 image patch verification failed')
           if 'from:"Бабушка", image:"gifts/day5_photo.jpg?v=2"' not in s:
               raise SystemExit('Day 5 image patch verification failed')
-          if 'С днём рождения! 🎉💖' not in s or 'g.date === "2026-08-28"' not in s:
-              raise SystemExit('Day 5 birthday surprise patch failed')
+          if 'С днём рождения! 🎉💖' not in s:
+              raise SystemExit('Day 5 birthday message patch failed')
+          if 'setTimeout(() => burstConfetti(w * .50, h * .20), 160);' not in s:
+              raise SystemExit('Day 5 birthday confetti patch failed')
           if not Path('dist/gifts/day4_photo.jpg').exists():
               raise SystemExit('Day 4 JPEG was not written')
           if len(day4_data) != 6397:
