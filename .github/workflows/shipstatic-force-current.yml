@@ -83,6 +83,31 @@ jobs:
               raise SystemExit('Day 5 placeholder not found')
           s = s.replace(old5, new5, 1)
 
+          # Birthday surprise for the 28 August / gift 5 card.
+          birthday_heading = '    <h3>Сегодняшний подарок — твой ✨</h3>'
+          birthday_heading_new = '    <h3>${g.date === "2026-08-28" ? "С днём рождения! 🎉💖" : "Сегодняшний подарок — твой ✨"}</h3>'
+          if birthday_heading not in s:
+              raise SystemExit('Birthday heading marker not found')
+          s = s.replace(birthday_heading, birthday_heading_new, 1)
+
+          birthday_close = '  `);\n}\nfunction revealSender(){'
+          birthday_close_new = '''  `);
+
+  if(g.date === "2026-08-28"){
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    setTimeout(() => burstConfetti(w * .22, h * .28), 80);
+    setTimeout(() => burstConfetti(w * .50, h * .20), 160);
+    setTimeout(() => burstConfetti(w * .78, h * .28), 240);
+    setTimeout(() => burstConfetti(w * .35, h * .46), 380);
+    setTimeout(() => burstConfetti(w * .65, h * .46), 520);
+  }
+}
+function revealSender(){'''
+          if birthday_close not in s:
+              raise SystemExit('Birthday confetti marker not found')
+          s = s.replace(birthday_close, birthday_close_new, 1)
+
           p.write_text(s, encoding='utf-8')
 
           if '"new_anim_13.webp"' not in s or 'EXTRA_PARTY_ADDED_3' not in s:
@@ -93,10 +118,12 @@ jobs:
               raise SystemExit('Day 4 image patch verification failed')
           if 'from:"Бабушка", image:"gifts/day5_photo.jpg?v=2"' not in s:
               raise SystemExit('Day 5 image patch verification failed')
+          if 'С днём рождения! 🎉💖' not in s or 'g.date === "2026-08-28"' not in s:
+              raise SystemExit('Day 5 birthday surprise patch failed')
           day5 = Path('dist/gifts/day5_photo.jpg').read_bytes()
           if not (day5.startswith(b'\xff\xd8') and day5.endswith(b'\xff\xd9')):
               raise SystemExit('Day 5 JPEG failed validation')
-          print(f'CURRENT_DEPLOY_OK: 18 unique visible animations from 25-item Netlify pool; day4={len(day4)} bytes; day5={len(day5)} bytes')
+          print(f'CURRENT_DEPLOY_OK: birthday surprise + confetti for day 5; day4={len(day4)} bytes; day5={len(day5)} bytes')
           PY
       - name: Publish current main to permanent ShipStatic address
         uses: shipstatic/action@v2
