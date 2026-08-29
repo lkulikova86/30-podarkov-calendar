@@ -81,6 +81,12 @@ jobs:
               raise SystemExit('Day 5 placeholder not found')
           s = s.replace(old5, new5, 1)
 
+          old6 = '{date:"2026-08-29", day:"29", month:"AUG", gift:"Подарок №6", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"От человека №6"}'
+          new6 = '{date:"2026-08-29", day:"29", month:"AUG", gift:"Подарок №6", note:"Здесь потом будет описание подарка и подсказка, где его найти.", from:"с любовью из Талицы", image:"gifts/day6_photo.jpg?v=1"}'
+          if old6 not in s:
+              raise SystemExit('Day 6 placeholder not found')
+          s = s.replace(old6, new6, 1)
+
           birthday_heading = '    <h3>Сегодняшний подарок — твой ✨</h3>'
           birthday_heading_new = '    <h3>${g.date === "2026-08-28" ? "С днём рождения! 🎉💖" : "Сегодняшний подарок — твой ✨"}</h3>'
           if birthday_heading not in s:
@@ -103,6 +109,8 @@ jobs:
               raise SystemExit('Day 4 image patch verification failed')
           if 'from:"Бабушка", image:"gifts/day5_photo.jpg?v=2"' not in s:
               raise SystemExit('Day 5 image patch verification failed')
+          if 'from:"с любовью из Талицы", image:"gifts/day6_photo.jpg?v=1"' not in s:
+              raise SystemExit('Day 6 image patch verification failed')
           if 'С днём рождения! 🎉💖' not in s:
               raise SystemExit('Day 5 birthday message patch failed')
           if 'setTimeout(() => burstConfetti(w * .50, h * .20), 160);' not in s:
@@ -110,7 +118,10 @@ jobs:
           day5 = Path('dist/gifts/day5_photo.jpg').read_bytes()
           if not (day5.startswith(b'\xff\xd8') and day5.endswith(b'\xff\xd9')):
               raise SystemExit('Day 5 JPEG failed validation')
-          print(f'CURRENT_DEPLOY_OK: birthday surprise + confetti for day 5; day4={len(day4)} bytes; day5={len(day5)} bytes')
+          day6 = Path('dist/gifts/day6_photo.jpg').read_bytes()
+          if not (day6.startswith(b'\xff\xd8') and day6.endswith(b'\xff\xd9')):
+              raise SystemExit('Day 6 JPEG failed validation')
+          print(f'CURRENT_DEPLOY_OK: day6 ready; day5={len(day5)} bytes; day6={len(day6)} bytes')
           PY
       - name: Publish current main to permanent ShipStatic address
         uses: shipstatic/action@v2
