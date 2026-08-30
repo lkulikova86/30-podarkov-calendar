@@ -507,10 +507,15 @@
     background:rgba(126,104,200,.16);
     backdrop-filter:blur(10px);
     z-index:20;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
   }
   .modal.show{display:flex}
   .modal-card{
     position:relative;
+    flex:0 0 auto;
+    margin:auto;
     width:min(720px,100%);
     background:linear-gradient(180deg,#fffefc,#fff8fb);
     border:2px solid #fff;
