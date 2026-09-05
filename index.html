@@ -52,7 +52,7 @@
     position:absolute;
     opacity:.30;
     filter:drop-shadow(0 10px 20px rgba(106,79,160,.18));
-    animation:bobBg 7s ease-in-out infinite;
+    animation:bobBg 14s ease-in-out infinite;
     user-select:none;
   }
   .bg-face img{
@@ -777,7 +777,7 @@
     .card{min-height:200px}
   }
   @media (prefers-reduced-motion: reduce){
-    .piece{animation-duration:70s !important;}
+    .piece{animation-duration:120s !important;}
   }
 </style>
 </head>
@@ -1120,7 +1120,7 @@ function makeConfetti(){
     const size = 64 + Math.random() * 38;
 
     const left = 1 + Math.random() * 96;
-    const duration = 45 + Math.random() * 25;
+    const duration = 80 + Math.random() * 40;
     const delay = -(Math.random() * duration);
     const opacity = 0.58 + Math.random() * 0.22;
     const tilt = (-16 + Math.random() * 32).toFixed(1) + "deg";
@@ -1202,7 +1202,7 @@ function makeBackgroundFaces(){
     el.style.width = p.w + "px";
     el.style.opacity = p.o;
     el.style.setProperty("--rot", p.r + "deg");
-    el.style.animationDelay = (-i * .45) + "s";
+    el.style.animationDelay = (-i * .8) + "s";
     el.innerHTML = `<img src="${PARTY_FACE}" alt="">`;
     wrap.appendChild(el);
   });
