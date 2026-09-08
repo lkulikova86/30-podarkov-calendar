@@ -407,6 +407,17 @@
     position:relative;
     z-index:2;
   }
+  .card.opening-gift{
+    animation:openingGiftPulse .45s ease-in-out;
+  }
+  @keyframes openingGiftPulse{
+    0%,100%{transform:scale(1)}
+    50%{
+      transform:scale(1.035);
+      box-shadow:0 22px 55px rgba(255,94,168,.32);
+    }
+  }
+
   .card{
     position:relative;
     min-height:220px;
@@ -985,12 +996,39 @@ function updateProgress(){
   document.getElementById("progressText").textContent = `${count} / ${gifts.length}`;
   document.getElementById("progressBar").style.width = `${(count / gifts.length) * 100}%`;
 }
+let todayGiftOpening = false;
+
 function openTodayGift(){
+  if(todayGiftOpening) return;
+
   const today = amsterdamNowParts().date;
   const todayIndex = gifts.findIndex(g => g.date === today);
 
   if(todayIndex !== -1){
-    openGift(todayIndex);
+    const card = document.getElementById("grid")?.children[todayIndex];
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if(!card){
+      openGift(todayIndex);
+      return;
+    }
+
+    todayGiftOpening = true;
+    card.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "center"
+    });
+
+    setTimeout(() => {
+      card.classList.add("opening-gift");
+
+      setTimeout(() => {
+        card.classList.remove("opening-gift");
+        openGift(todayIndex);
+        todayGiftOpening = false;
+      }, reduceMotion ? 0 : 450);
+    }, reduceMotion ? 0 : 650);
+
     return;
   }
 
