@@ -796,7 +796,7 @@
         Открывай скорее ячейку и смотри, где и как его можно найти!
       </p>
       <div class="hero-actions">
-        <button class="btn primary" onclick="document.querySelector('#calendar').scrollIntoView()">Открыть подарки</button>
+        <button class="btn primary" onclick="openTodayGift()">Открыть подарок</button>
         <button class="btn secondary" onclick="showRules()">Как это работает</button>
       </div>
       <div class="tiny-note">Подглядывать раньше времени всё ещё нельзя — но зато можно радоваться каждый день ✨</div>
@@ -985,6 +985,18 @@ function updateProgress(){
   document.getElementById("progressText").textContent = `${count} / ${gifts.length}`;
   document.getElementById("progressBar").style.width = `${(count / gifts.length) * 100}%`;
 }
+function openTodayGift(){
+  const today = amsterdamNowParts().date;
+  const todayIndex = gifts.findIndex(g => g.date === today);
+
+  if(todayIndex !== -1){
+    openGift(todayIndex);
+    return;
+  }
+
+  document.querySelector("#calendar").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
 function openGift(index){
   const g = gifts[index];
 
