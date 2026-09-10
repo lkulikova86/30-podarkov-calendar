@@ -1009,7 +1009,7 @@ function openTodayGift(){
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if(!card){
-      openGift(todayIndex);
+      document.querySelector("#calendar").scrollIntoView({behavior:"smooth", block:"start"});
       return;
     }
 
@@ -1024,7 +1024,6 @@ function openTodayGift(){
 
       setTimeout(() => {
         card.classList.remove("opening-gift");
-        openGift(todayIndex);
         todayGiftOpening = false;
       }, reduceMotion ? 0 : 450);
     }, reduceMotion ? 0 : 650);
