@@ -53,9 +53,9 @@ jobs:
               raise SystemExit('Animation count setting not found')
           s = s.replace('const total = 12;', 'const total = 18;', 1)
 
-          if 'const duration = 80 + Math.random() * 40;' not in s:
+          if 'const duration = 42 + Math.random() * 24;' not in s:
               raise SystemExit('Animation speed setting not found')
-          s = s.replace('const duration = 80 + Math.random() * 40;', 'const duration = 80 + Math.random() * 40;', 1)
+          s = s.replace('const duration = 42 + Math.random() * 24;', 'const duration = 42 + Math.random() * 24;', 1)
 
           broken_pool = 'const FALLING_PHOTOS = [PARTY_FACE, EXTRA_FESTIVE_STICKER_1, EXTRA_FESTIVE_STICKER_2, EXTRA_NEW_STICKER_1, EXTRA_NEW_STICKER_2, EXTRA_NEW_STICKER_3, "party_anim_1.png", "party_anim_2.png", "party_anim_3.png", "new_party_anim_01.png", "new_party_anim_02.png", "new_party_anim_03.png", "new_party_anim_04.png", "new_party_anim_05.png", "new_party_anim_06.png", "new_party_anim_07.png", "new_party_anim_08.png", "new_party_anim_09.png", "new_party_anim_10.png"];'
           netlify_pool = 'const FALLING_PHOTOS = [PARTY_FACE, EXTRA_FESTIVE_STICKER_1, EXTRA_FESTIVE_STICKER_2, EXTRA_NEW_STICKER_1, EXTRA_NEW_STICKER_2, EXTRA_NEW_STICKER_3, EXTRA_PLAIN_STICKER_1, EXTRA_PLAIN_STICKER_2, EXTRA_PLAIN_STICKER_3, EXTRA_PARTY_ADDED_1, EXTRA_PARTY_ADDED_2, EXTRA_PARTY_ADDED_3, "new_anim_01.webp", "new_anim_02.webp", "new_anim_03.webp", "new_anim_04.webp", "new_anim_05.webp", "new_anim_06.webp", "new_anim_07.webp", "new_anim_08.webp", "new_anim_09.webp", "new_anim_10.webp", "new_anim_11.webp", "new_anim_12.webp", "new_anim_13.webp"];'
@@ -112,7 +112,7 @@ jobs:
 
           if 'const total = 18;' not in s:
               raise SystemExit('Animation count patch verification failed')
-          if 'const duration = 80 + Math.random() * 40;' not in s:
+          if 'const duration = 42 + Math.random() * 24;' not in s:
               raise SystemExit('Animation speed patch verification failed')
           if '"new_anim_13.webp"' not in s or 'EXTRA_PARTY_ADDED_3' not in s:
               raise SystemExit('Full Netlify animation pool verification failed')
