@@ -1,13 +1,6 @@
 name: Publish birthday calendar
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'index.html'
-      - 'new_anim_*.webp'
-      - 'gifts/**'
-      - '.github/workflows/shipstatic-production.yml'
   workflow_dispatch:
 
 permissions:
