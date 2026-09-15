@@ -22,8 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Restore valid gift 23 image
+        run: base64 -d gifts/day23_photo_new_base64.txt > gifts/day23_photo.jpg
       - name: Bust gift 23 image cache
-        run: sed -i 's#image:"gifts/day23_photo.jpg?v=1"#image:"gifts/day23_photo.jpg?v=24"#' index.html
+        run: sed -i 's#image:"gifts/day23_photo.jpg?v=1"#image:"gifts/day23_photo.jpg?v=25"#' index.html
       - uses: actions/configure-pages@v5
         with:
           enablement: true
