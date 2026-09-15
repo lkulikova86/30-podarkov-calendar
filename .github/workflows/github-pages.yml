@@ -24,6 +24,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Bust gift 23 image cache
         run: sed -i 's#image:"gifts/day23_photo.jpg?v=1"#image:"gifts/day23_photo.jpg?v=26"#' index.html
+      - name: Bust gift 24 image cache
+        run: sed -i 's#image:"gifts/day24_photo.jpg?v=1"#image:"gifts/day24_photo.jpg?v=2"#' index.html
       - uses: actions/configure-pages@v5
         with:
           enablement: true
