@@ -47,3 +47,5 @@ jobs:
           git add index.html
           git commit -m "Fix gift 26 image" || exit 0
           git push origin HEAD:main
+
+# retrigger: fix broken image render
